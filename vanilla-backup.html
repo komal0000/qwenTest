@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武士道 | The Way of the Samurai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================
+           CSS RESET & BASE
+           ============================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black-deep: #0a0a0a;
+            --black-soft: #111111;
+            --black-light: #1a1a1a;
+            --parchment: #e8dcc8;
+            --parchment-dark: #d4c5a9;
+            --crimson: #c0392b;
+            --crimson-dark: #8b0000;
+            --earth-brown: #5c4033;
+            --earth-tan: #8b7355;
+            --gold-muted: #b8860b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            cursor: crosshair;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--black-deep);
+            color: var(--parchment);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           GRAIN/NOISE OVERLAY
+           ============================================ */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* ============================================
+           TYPOGRAPHY
+           ============================================ */
+        h1, h2, h3, h4 {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .japanese-text {
+            font-family: 'Shippori Mincho', serif;
+        }
+
+        /* ============================================
+           INTERACTIVE SPREAD TEXT
+           ============================================ */
+        .spreadText {
+            display: inline-block;
+            width: min(100%, 100%);
+            cursor: default;
+        }
+
+        .spreadText__stage {
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .spreadText__glyph {
+            position: absolute;
+            display: inline-block;
+            text-align: center;
+            user-select: none;
+            will-change: transform;
+            color: inherit;
+            pointer-events: none;
+            white-space: pre;
+        }
+
+        .spreadText--hero {
+            width: min(100%, 760px);
+        }
+
+        .spreadText--footer {
+            width: min(100%, 640px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spreadText__glyph {
+                transition: none !important;
+                transform: translate(0, 0) !important;
+            }
+        }
+
+        /* ============================================
+           SCROLL ANIMATIONS
+           ============================================ */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .fade-in-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, var(--black-soft) 0%, var(--black-deep) 70%);
+        }
+
+        .hero-sun {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--crimson) 0%, var(--crimson-dark) 60%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: blur(2px);
+            will-change: transform;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(10, 10, 10, 0.3) 0%,
+                rgba(10, 10, 10, 0.6) 50%,
+                rgba(10, 10, 10, 0.95) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(4rem, 12vw, 10rem);
+            color: var(--crimson);
+            text-shadow: 0 0 40px rgba(192, 57, 43, 0.5);
+            margin-bottom: 1rem;
+            letter-spacing: 0.2em;
+        }
+
+        .hero-haiku {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: var(--parchment-dark);
+            font-style: italic;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .hero-tagline {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--parchment);
+            text-shadow: 0 0 20px rgba(232, 220, 200, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-tagline span {
+            color: var(--crimson);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator::before {
+            content: '↓';
+            font-size: 2rem;
+            color: var(--parchment-dark);
+            opacity: 0.6;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* ============================================
+           BRUSHSTROKE DIVIDERS
+           ============================================ */
+        .brushstroke-divider {
+            position: relative;
+            height: 60px;
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+        .brushstroke-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--crimson) 20%,
+                var(--crimson-dark) 50%,
+                var(--crimson) 80%,
+                transparent 100%
+            );
+            transform: translateY(-50%);
+            filter: blur(1px);
+        }
+
+        .brushstroke-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--crimson);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--crimson);
+        }
+
+        /* ============================================
+           SECTION STYLES
+           ============================================ */
+        section {
+            padding: 100px 20px;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--parchment);
+        }
+
+        .section-subtitle {
+            font-family: 'Shippori Mincho', serif;
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--parchment-dark);
+            opacity: 0.7;
+            margin-bottom: 4rem;
+        }
+
+        /* ============================================
+           ABOUT / PHILOSOPHY SECTION
+           ============================================ */
+        .about {
+            background: linear-gradient(180deg, var(--black-deep) 0%, var(--black-soft) 50%, var(--black-deep) 100%);
+        }
+
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+        }
+
+        .about-text {
+            grid-column: 1 / -1;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--parchment-dark);
+        }
+
+        .bushido-card {
+            background: var(--black-light);
+            border: 1px solid rgba(192, 57, 43, 0.2);
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .bushido-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(192, 57, 43, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .bushido-card:hover {
+            border-color: var(--crimson);
+            box-shadow: 0 0 30px rgba(192, 57, 43, 0.3), inset 0 0 30px rgba(192, 57, 43, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .bushido-card:hover::before {
+            opacity: 1;
+        }
+
+        .bushido-card .kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 3rem;
+            color: var(--crimson);
+            display: block;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(192, 57, 43, 0.4);
+        }
+
+        .bushido-card h3 {
+            font-size: 1.3rem;
+            color: var(--parchment);
+            margin-bottom: 0.5rem;
+        }
+
+        .bushido-card p {
+            color: var(--parchment-dark);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Distressed border effect */
+        .bushido-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, var(--crimson-dark), transparent, var(--crimson)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .bushido-card:hover::after {
+            opacity: 0.5;
+        }
+
+        /* ============================================
+           GALLERY / SHOWCASE SECTION
+           ============================================ */
+        .gallery {
+            background: var(--black-deep);
+        }
+
+        .gallery-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .gallery-card {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            background: var(--black-soft);
+            border: 1px solid rgba(139, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .gallery-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(10, 10, 10, 0.4) 50%,
+                rgba(10, 10, 10, 0.9) 100%
+            );
+            z-index: 1;
+        }
+
+        .gallery-card .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-card:hover .card-bg {
+            transform: scale(1.1);
+        }
+
+        .gallery-card:hover {
+            border-color: var(--crimson);
+            box-shadow: 0 0 40px rgba(192, 57, 43, 0.4);
+        }
+
+        .gallery-card .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            z-index: 2;
+        }
+
+        .gallery-card .card-quote {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--parchment);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-card .card-author {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: var(--crimson);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Ink bleed hover effect */
+        .gallery-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(192, 57, 43, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+            z-index: 0;
+        }
+
+        .gallery-card:hover::after {
+            width: 150%;
+            height: 150%;
+        }
+
+        /* ============================================
+           QUOTE BANNER SECTION
+           ============================================ */
+        .quote-banner {
+            position: relative;
+            padding: 120px 20px;
+            background: 
+                linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 0, 0, 0.03) 2px,
+                    rgba(139, 0, 0, 0.03) 4px
+                );
+            background-color: var(--earth-brown);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .quote-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(192, 57, 43, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(139, 0, 0, 0.1) 0%, transparent 50%);
+        }
+
+        .quote-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .quote-mark {
+            font-family: 'Cinzel', serif;
+            font-size: 8rem;
+            color: var(--crimson);
+            line-height: 0.5;
+            opacity: 0.6;
+            margin-bottom: 1rem;
+        }
+
+        .quote-text {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--parchment);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .quote-author {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--crimson);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        /* ============================================
+           FOOTER / CONTACT SECTION
+           ============================================ */
+        .footer {
+            background: var(--black-deep);
+            padding: 80px 20px 40px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-size: 2rem;
+            color: var(--parchment);
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--parchment-dark);
+            opacity: 0.7;
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+
+        /* Japanese-style horizontal rule */
+        .japanese-hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--crimson-dark) 30%,
+                var(--crimson) 50%,
+                var(--crimson-dark) 70%,
+                transparent 100%
+            );
+            margin: 3rem auto;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .japanese-hr::before {
+            content: '◆';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--crimson);
+            font-size: 1rem;
+            background: var(--black-deep);
+            padding: 0 1rem;
+        }
+
+        /* Social icons styled as wax seals */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .social-link {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--black-soft);
+            border: 2px solid var(--crimson-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--parchment);
+            font-family: 'Shippori Mincho', serif;
+            font-size: 1.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: linear-gradient(45deg, var(--crimson), transparent) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .social-link:hover {
+            background: var(--crimson-dark);
+            border-color: var(--crimson);
+            box-shadow: 0 0 20px rgba(192, 57, 43, 0.5);
+            transform: scale(1.1);
+        }
+
+        .social-link:hover::before {
+            opacity: 1;
+        }
+
+        .footer-kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 3rem;
+            color: var(--crimson-dark);
+            opacity: 0.3;
+            margin-bottom: 2rem;
+        }
+
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: var(--parchment-dark);
+            opacity: 0.4;
+        }
+
+        /* ============================================
+           CUSTOM CURSOR
+           ============================================ */
+        .custom-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--crimson);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            mix-blend-mode: difference;
+        }
+
+        .custom-cursor::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: var(--crimson);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .custom-cursor.hover {
+            transform: scale(1.5);
+            border-color: var(--parchment);
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            .hero-sun {
+                width: 350px;
+                height: 350px;
+            }
+
+            .hero-kanji {
+                font-size: 5rem;
+            }
+
+            .hero-tagline {
+                font-size: 1.2rem;
+            }
+
+            section {
+                padding: 60px 15px;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .social-links {
+                gap: 1rem;
+            }
+
+            .social-link {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .custom-cursor {
+                display: none;
+            }
+
+            html {
+                cursor: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-sun {
+                width: 250px;
+                height: 250px;
+            }
+
+            .hero-kanji {
+                font-size: 3.5rem;
+            }
+
+            .quote-text {
+                font-size: 1.2rem;
+            }
+
+            .bushido-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* ============================================
+           LOADING ANIMATION
+           ============================================ */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--black-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 4rem;
+            color: var(--crimson);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <span class="loader-kanji japanese-text">武士道</span>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor" id="cursor"></div>
+
+    <!-- ============================================
+         HERO SECTION
+         ============================================ -->
+    <section class="hero" id="hero">
+        <div class="hero-sun" id="heroSun"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-kanji japanese-text">侍</h1>
+            <p class="hero-haiku japanese-text">
+                古池や蛙飛び込む水の音<br>
+                <span style="font-size: 0.8em; opacity: 0.7;">Furu ike ya / kawazu tobikomu / mizu no oto</span>
+            </p>
+            <h2 class="hero-tagline">
+                <span
+                    class="spreadText spreadText--hero js-spread-text"
+                    data-text="Between Life and Death, There is Only the Blade"
+                    data-font="700 44px Cinzel"
+                    data-line-height="58"
+                    data-radius="98"
+                    data-strength="26"
+                    aria-label="Between Life and Death, There is Only the Blade"
+                ></span>
+            </h2>
+        </div>
+        <div class="scroll-indicator"></div>
+    </section>
+
+    <!-- ============================================
+         ABOUT / PHILOSOPHY SECTION
+         ============================================ -->
+    <section class="about" id="about">
+        <h2 class="section-title fade-in">The Way of the Warrior</h2>
+        <p class="section-subtitle fade-in japanese-text">武士道の七徳</p>
+        <div class="brushstroke-divider"></div>
+        
+        <div class="about-content">
+            <p class="about-text fade-in">
+                The samurai lived by an unwritten code — a path of honor, discipline, and unwavering resolve. 
+                These seven virtues formed the foundation of Bushido, guiding warriors through the darkness 
+                with the light of righteousness.
+            </p>
+
+            <div class="bushido-card fade-in-left">
+                <span class="kanji japanese-text">義</span>
+                <h3>Rectitude</h3>
+                <p>The power to decide upon a course of conduct with reason, without wavering. To die when to die is right, to strike when to strike is right.</p>
+            </div>
+
+            <div class="bushido-card fade-in-right">
+                <span class="kanji japanese-text">勇</span>
+                <h3>Courage</h3>
+                <p>Not merely physical bravery, but the courage to do what is right. To face what must be faced, regardless of fear.</p>
+            </div>
+
+            <div class="bushido-card fade-in-left">
+                <span class="kanji japanese-text">仁</span>
+                <h3>Benevolence</h3>
+                <p>The power to show compassion, to love others. A warrior who shows mercy is stronger than one who only knows destruction.</p>
+            </div>
+
+            <div class="bushido-card fade-in-right">
+                <span class="kanji japanese-text">礼</span>
+                <h3>Respect</h3>
+                <p>Showing courtesy and proper etiquette at all times. Even to enemies, for without respect, we are nothing but beasts.</p>
+            </div>
+
+            <div class="bushido-card fade-in-left">
+                <span class="kanji japanese-text">誠</span>
+                <h3>Honesty</h3>
+                <p>When you say you will do something, it is as good as done. A samurai's word is their bond, unbreakable as steel.</p>
+            </div>
+
+            <div class="bushido-card fade-in-right">
+                <span class="kanji japanese-text">名誉</span>
+                <h3>Honor</h3>
+                <p>A true samurai is the sole judge of their own honor. The decisions you make and actions you take reflect who you truly are.</p>
+            </div>
+
+            <div class="bushido-card fade-in-left">
+                <span class="kanji japanese-text">忠義</span>
+                <h3>Loyalty</h3>
+                <p>Devotion to those you have pledged yourself. A samurai without loyalty is a mere wanderer, lost in the wind.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         GALLERY / SHOWCASE SECTION
+         ============================================ -->
+    <section class="gallery" id="gallery">
+        <h2 class="section-title fade-in">Echoes of the Blade</h2>
+        <p class="section-subtitle fade-in japanese-text">剣の響き</p>
+        <div class="brushstroke-divider"></div>
+
+        <div class="gallery-grid">
+            <div class="gallery-card fade-in">
+                <div class="card-bg" style="background: linear-gradient(135deg, #1a0a0a 0%, #2d1515 50%, #0a0a0a 100%);"></div>
+                <div class="card-content">
+                    <p class="card-quote">"The way of the samurai is found in death. Meditate on inevitable death and make it your constant thought."</p>
+                    <p class="card-author">— Yamamoto Tsunetomo</p>
+                </div>
+            </div>
+
+            <div class="gallery-card fade-in">
+                <div class="card-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #15152d 50%, #0a0a0a 100%);"></div>
+                <div class="card-content">
+                    <p class="card-quote">"A warrior does not think of winning or losing. A warrior only thinks of fulfilling their duty."</p>
+                    <p class="card-author">— Miyamoto Musashi</p>
+                </div>
+            </div>
+
+            <div class="gallery-card fade-in">
+                <div class="card-bg" style="background: linear-gradient(135deg, #1a1a0a 0%, #2d2d15 50%, #0a0a0a 100%);"></div>
+                <div class="card-content">
+                    <p class="card-quote">"Today is your only day. Live it fully, for tomorrow you may be dust upon the wind."</p>
+                    <p class="card-author">— Date Masamune</p>
+                </div>
+            </div>
+
+            <div class="gallery-card fade-in">
+                <div class="card-bg" style="background: linear-gradient(135deg, #0a1a0a 0%, #152d15 50%, #0a0a0a 100%);"></div>
+                <div class="card-content">
+                    <p class="card-quote">"The sword is the soul. Polish your spirit as you would polish a blade — with patience and precision."</p>
+                    <p class="card-author">— Unknown Samurai</p>
+                </div>
+            </div>
+
+            <div class="gallery-card fade-in">
+                <div class="card-bg" style="background: linear-gradient(135deg, #1a0a1a 0%, #2d152d 50%, #0a0a0a 100%);"></div>
+                <div class="card-content">
+                    <p class="card-quote">"In battle, if you make the enemy lose their rhythm, you can win with ease. Study this well."</p>
+                    <p class="card-author">— Miyamoto Musashi</p>
+                </div>
+            </div>
+
+            <div class="gallery-card fade-in">
+                <div class="card-bg" style="background: linear-gradient(135deg, #0a1a1a 0%, #152d2d 50%, #0a0a0a 100%);"></div>
+                <div class="card-content">
+                    <p class="card-quote">"The ultimate aim of martial arts lies not in victory or defeat, but in the perfection of character."</p>
+                    <p class="card-author">— Gichin Funakoshi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         QUOTE BANNER SECTION
+         ============================================ -->
+    <section class="quote-banner" id="quote">
+        <div class="quote-content fade-in">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">
+                The way of the warrior is to live as though you are already dead. 
+                When you have given up your life, you are free. 
+                Only then can you truly serve your lord and walk the path of honor.
+            </p>
+            <p class="quote-author">— Hagakure</p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         FOOTER / CONTACT SECTION
+         ============================================ -->
+    <footer class="footer" id="footer">
+        <div class="footer-content">
+            <h2 class="footer-title fade-in">Walk the Path</h2>
+            <p class="footer-text fade-in">
+                <span
+                    class="spreadText spreadText--footer js-spread-text"
+                    data-text="The journey of a thousand miles begins with a single step."
+                    data-font="400 16px Inter"
+                    data-line-height="30"
+                    data-radius="88"
+                    data-strength="16"
+                    aria-label="The journey of a thousand miles begins with a single step."
+                ></span>
+            </p>
+            
+            <hr class="japanese-hr">
+            
+            <div class="social-links fade-in">
+                <a href="#" class="social-link" title="Twitter">鳥</a>
+                <a href="#" class="social-link" title="Instagram">映</a>
+                <a href="#" class="social-link" title="GitHub">技</a>
+                <a href="#" class="social-link" title="Email">書</a>
+            </div>
+            
+            <div class="footer-kanji japanese-text">道</div>
+            <p class="footer-copyright">© 2024 武士道 — The Way of the Samurai</p>
+        </div>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT
+         ============================================ -->
+    <script type="module">
+        import { prepareWithSegments, walkLineRanges, layoutWithLines } from 'https://esm.sh/@chenglou/pretext';
+
+        const DEFAULT_RADIUS = 94;
+        const DEFAULT_STRENGTH = 20;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function getRepelOffset(glyph, pointer, radius, strength) {
+            if (!pointer.active || prefersReducedMotion) {
+                return { x: 0, y: 0 };
+            }
+
+            const dx = glyph.cx - pointer.x;
+            const dy = glyph.cy - pointer.y;
+            const distance = Math.hypot(dx, dy);
+
+            if (distance >= radius || distance === 0) {
+                return { x: 0, y: 0 };
+            }
+
+            const intensity = ((radius - distance) / radius) ** 2;
+            const push = intensity * strength;
+
+            return {
+                x: (dx / distance) * push,
+                y: (dy / distance) * push
+            };
+        }
+
+        function buildGlyphMap(lineLayout, font, lineHeight, fallbackWidth) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) {
+                return {
+                    glyphs: [],
+                    renderHeight: lineHeight,
+                    renderWidth: fallbackWidth
+                };
+            }
+
+            ctx.font = font;
+            const glyphs = [];
+
+            lineLayout.lines.forEach((line, lineIndex) => {
+                let cursorX = 0;
+
+                Array.from(line.text).forEach((char, charIndex) => {
+                    const raw = ctx.measureText(char).width;
+                    const width = raw > 0 ? raw : ctx.measureText(' ').width;
+                    const top = lineIndex * lineHeight;
+
+                    glyphs.push({
+                        id: `${lineIndex}-${charIndex}`,
+                        char,
+                        left: cursorX,
+                        top,
+                        width,
+                        cx: cursorX + width / 2,
+                        cy: top + lineHeight / 2
+                    });
+
+                    cursorX += width;
+                });
+            });
+
+            return {
+                glyphs,
+                renderHeight: Math.max(lineHeight, lineLayout.height),
+                renderWidth: Math.max(1, Math.ceil(lineLayout.width || fallbackWidth))
+            };
+        }
+
+        function createInteractiveSpreadText(host) {
+            const text = host.dataset.text || host.textContent || '';
+            const font = host.dataset.font || '600 18px Trebuchet MS';
+            const lineHeight = Number(host.dataset.lineHeight || 26);
+            const radius = Number(host.dataset.radius || DEFAULT_RADIUS);
+            const strength = Number(host.dataset.strength || DEFAULT_STRENGTH);
+
+            if (!text.trim()) {
+                return;
+            }
+
+            host.textContent = '';
+
+            const stage = document.createElement('span');
+            stage.className = 'spreadText__stage';
+            host.appendChild(stage);
+
+            const state = {
+                pointer: { active: false, x: 0, y: 0 },
+                hostWidth: 0,
+                glyphs: [],
+                glyphElements: []
+            };
+
+            function renderGlyphs() {
+                stage.textContent = '';
+                state.glyphElements = [];
+
+                state.glyphs.forEach(glyph => {
+                    const span = document.createElement('span');
+                    span.className = 'spreadText__glyph';
+                    span.style.left = `${glyph.left}px`;
+                    span.style.top = `${glyph.top}px`;
+                    span.style.width = `${glyph.width}px`;
+                    span.style.height = `${lineHeight}px`;
+                    span.style.lineHeight = `${lineHeight}px`;
+                    span.textContent = glyph.char === ' ' ? '\u00A0' : glyph.char;
+                    stage.appendChild(span);
+                    state.glyphElements.push(span);
+                });
+            }
+
+            function applyOffsets() {
+                const activeTransition = 'transform 70ms linear';
+                const settleTransition = 'transform 460ms cubic-bezier(0.2, 0.88, 0.25, 1)';
+
+                state.glyphs.forEach((glyph, index) => {
+                    const glyphNode = state.glyphElements[index];
+                    if (!glyphNode) return;
+
+                    const offset = getRepelOffset(glyph, state.pointer, radius, strength);
+                    glyphNode.style.transform = `translate(${offset.x}px, ${offset.y}px)`;
+                    glyphNode.style.transition = state.pointer.active ? activeTransition : settleTransition;
+                });
+            }
+
+            function recomputeLayout() {
+                const maxWidth = Math.max(state.hostWidth, 120);
+
+                try {
+                    const prepared = prepareWithSegments(text, font);
+                    let tightWidth = 0;
+
+                    walkLineRanges(prepared, maxWidth, line => {
+                        if (line.width > tightWidth) {
+                            tightWidth = line.width;
+                        }
+                    });
+
+                    const wrappedWidth = Math.max(1, Math.ceil(tightWidth));
+                    const lineLayout = layoutWithLines(prepared, wrappedWidth, lineHeight);
+                    const mapped = buildGlyphMap(lineLayout, font, lineHeight, wrappedWidth);
+
+                    state.glyphs = mapped.glyphs;
+                    stage.style.width = `${mapped.renderWidth}px`;
+                    stage.style.height = `${mapped.renderHeight}px`;
+                    host.style.minHeight = `${mapped.renderHeight}px`;
+
+                    renderGlyphs();
+                    applyOffsets();
+                } catch {
+                    state.glyphs = [{
+                        id: 'fallback',
+                        char: text,
+                        left: 0,
+                        top: 0,
+                        width: maxWidth,
+                        cx: maxWidth / 2,
+                        cy: lineHeight / 2
+                    }];
+
+                    stage.style.width = `${Math.ceil(maxWidth)}px`;
+                    stage.style.height = `${lineHeight}px`;
+                    host.style.minHeight = `${lineHeight}px`;
+
+                    renderGlyphs();
+                    applyOffsets();
+                }
+            }
+
+            let pointerRaf = 0;
+
+            function schedulePointerUpdate(nextPointer) {
+                state.pointer = nextPointer;
+
+                if (pointerRaf) return;
+
+                pointerRaf = requestAnimationFrame(() => {
+                    applyOffsets();
+                    pointerRaf = 0;
+                });
+            }
+
+            host.addEventListener('pointermove', event => {
+                const rect = host.getBoundingClientRect();
+                schedulePointerUpdate({
+                    active: true,
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top
+                });
+            });
+
+            host.addEventListener('pointerleave', () => {
+                schedulePointerUpdate({ active: false, x: 0, y: 0 });
+            });
+
+            const resizeObserver = new ResizeObserver(entries => {
+                const nextWidth = entries[0] ? entries[0].contentRect.width : host.clientWidth;
+
+                if (Math.abs(nextWidth - state.hostWidth) < 1) {
+                    return;
+                }
+
+                state.hostWidth = nextWidth;
+                recomputeLayout();
+            });
+
+            state.hostWidth = host.clientWidth;
+            recomputeLayout();
+            resizeObserver.observe(host);
+        }
+
+        document.querySelectorAll('.js-spread-text').forEach(createInteractiveSpreadText);
+
+        // ============================================
+        // LOADER
+        // ============================================
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, 1500);
+        });
+
+        // ============================================
+        // CUSTOM CURSOR
+        // ============================================
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            cursor.style.left = cursorX - 15 + 'px';
+            cursor.style.top = cursorY - 15 + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover effect on interactive elements
+        const interactiveElements = document.querySelectorAll('a, button, .gallery-card, .bushido-card, .social-link, .spreadText');
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // ============================================
+        // PARALLAX SCROLLING ON HERO SUN
+        // ============================================
+        const heroSun = document.getElementById('heroSun');
+        
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const heroHeight = document.querySelector('.hero').offsetHeight;
+            
+            if (scrollY < heroHeight) {
+                const parallaxValue = scrollY * 0.5;
+                heroSun.style.transform = `translateY(${parallaxValue}px) scale(${1 + scrollY * 0.0005})`;
+            }
+        });
+
+        // ============================================
+        // SCROLL-TRIGGERED FADE-IN ANIMATIONS
+        // ============================================
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right').forEach(el => {
+            observer.observe(el);
+        });
+
+        // ============================================
+        // SMOOTH SCROLL FOR INTERNAL LINKS
+        // ============================================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // ============================================
+        // GALLERY CARD TILT EFFECT
+        // ============================================
+        document.querySelectorAll('.gallery-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            });
+        });
+
+        // ============================================
+        // DYNAMIC GRAIN OVERLAY INTENSITY ON SCROLL
+        // ============================================
+        let lastScrollY = 0;
+        let scrollTimeout;
+
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                // Subtle effect reset on scroll stop
+            }, 150);
+        });
+
+        // ============================================
+        // TYPING EFFECT FOR HERO TAGLINE (OPTIONAL ENHANCEMENT)
+        // ============================================
+        const tagline = document.querySelector('.hero-tagline');
+        if (tagline) {
+            tagline.style.opacity = '0';
+            setTimeout(() => {
+                tagline.style.transition = 'opacity 1.5s ease';
+                tagline.style.opacity = '1';
+            }, 2000);
+        }
+
+        // ============================================
+        // RE-OBSERVE INTERACTIVE ELEMENTS FOR CURSOR
+        // ============================================
+        function updateInteractiveElements() {
+            const newInteractiveElements = document.querySelectorAll('a, button, .gallery-card, .bushido-card, .social-link, .spreadText');
+            newInteractiveElements.forEach(el => {
+                el.removeEventListener('mouseenter', handleMouseEnter);
+                el.removeEventListener('mouseleave', handleMouseLeave);
+                el.addEventListener('mouseenter', handleMouseEnter);
+                el.addEventListener('mouseleave', handleMouseLeave);
+            });
+        }
+
+        function handleMouseEnter() {
+            cursor.classList.add('hover');
+        }
+
+        function handleMouseLeave() {
+            cursor.classList.remove('hover');
+        }
+
+        // Run after loader
+        setTimeout(updateInteractiveElements, 2000);
+    </script>
+</body>
+</html>

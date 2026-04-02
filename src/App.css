@@ -1,0 +1,928 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500&family=Shippori+Mincho:wght@400;500;600;700&display=swap');
+
+/* ============================================
+           CSS RESET & BASE
+           ============================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black-deep: #0a0a0a;
+            --black-soft: #111111;
+            --black-light: #1a1a1a;
+            --parchment: #e8dcc8;
+            --parchment-dark: #d4c5a9;
+            --crimson: #c0392b;
+            --crimson-dark: #8b0000;
+            --earth-brown: #5c4033;
+            --earth-tan: #8b7355;
+            --gold-muted: #b8860b;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            cursor: crosshair;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--black-deep);
+            color: var(--parchment);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           GRAIN/NOISE OVERLAY
+           ============================================ */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* ============================================
+           TYPOGRAPHY
+           ============================================ */
+        h1, h2, h3, h4 {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .japanese-text {
+            font-family: 'Shippori Mincho', serif;
+        }
+
+        /* ============================================
+           INTERACTIVE SPREAD TEXT
+           ============================================ */
+        .spreadText {
+            display: block;
+            max-width: 100%;
+            text-align: inherit;
+            cursor: default;
+        }
+
+        .spreadText__stage {
+            position: relative;
+            display: inline-block;
+            margin: 0;
+        }
+
+        .spreadText__glyph {
+            position: absolute;
+            display: inline-block;
+            text-align: left;
+            user-select: none;
+            will-change: transform;
+            color: inherit;
+            pointer-events: none;
+            white-space: pre;
+        }
+
+        .spreadText--hero {
+            display: block;
+            margin: 0 auto;
+            width: min(100%, 760px);
+        }
+
+        .spreadText--footer {
+            display: block;
+            margin: 0 auto;
+            width: min(100%, 640px);
+        }
+
+        .spreadText--flow {
+            display: block;
+            width: 100%;
+            text-align: inherit;
+        }
+
+        .spreadText--inline {
+            display: inline-block;
+            width: auto;
+            max-width: none;
+            min-width: 0;
+            vertical-align: baseline;
+        }
+
+        .spreadText--inline .spreadText__stage {
+            display: inline-block;
+            margin: 0;
+            vertical-align: baseline;
+        }
+
+        .spreadText--inline .spreadText__glyph {
+            text-align: left;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spreadText__glyph {
+                transition: none !important;
+                transform: translate(0, 0) !important;
+            }
+        }
+
+        /* ============================================
+           SCROLL ANIMATIONS
+           ============================================ */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .fade-in-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, var(--black-soft) 0%, var(--black-deep) 70%);
+        }
+
+        .hero-sun {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--crimson) 0%, var(--crimson-dark) 60%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: blur(2px);
+            will-change: transform;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(10, 10, 10, 0.3) 0%,
+                rgba(10, 10, 10, 0.6) 50%,
+                rgba(10, 10, 10, 0.95) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(4rem, 12vw, 10rem);
+            color: var(--crimson);
+            text-shadow: 0 0 40px rgba(192, 57, 43, 0.5);
+            margin-bottom: 1rem;
+            letter-spacing: 0.2em;
+        }
+
+        .hero-haiku {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: var(--parchment-dark);
+            font-style: italic;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .hero-tagline {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(1.2rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--parchment);
+            text-shadow: 0 0 20px rgba(232, 220, 200, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-tagline span {
+            color: var(--crimson);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            width: 64px;
+            height: 64px;
+            transform: translateX(-50%);
+            z-index: 10;
+            border: 1px solid rgba(192, 57, 43, 0.35);
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 50% 30%, rgba(192, 57, 43, 0.22) 0%, rgba(192, 57, 43, 0.05) 40%, transparent 75%),
+                rgba(10, 10, 10, 0.4);
+            box-shadow:
+                0 0 20px rgba(192, 57, 43, 0.22),
+                inset 0 0 14px rgba(192, 57, 43, 0.12);
+            animation: katanaBounce 2.2s infinite;
+        }
+
+        .scroll-indicator::before {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 2px;
+            height: 24px;
+            background: linear-gradient(to bottom, rgba(232, 220, 200, 0.95) 0%, rgba(232, 220, 200, 0.5) 100%);
+            transform: translateX(-50%);
+            border-radius: 999px;
+            box-shadow: 0 0 10px rgba(232, 220, 200, 0.22);
+        }
+
+        .scroll-indicator::after {
+            content: '';
+            position: absolute;
+            top: 33px;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid var(--crimson);
+            border-bottom: 2px solid var(--crimson);
+            transform: translateX(-50%) rotate(45deg);
+            filter: drop-shadow(0 0 6px rgba(192, 57, 43, 0.45));
+        }
+
+        @keyframes katanaBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-11px) scale(1.03); }
+            60% { transform: translateX(-50%) translateY(-6px); }
+        }
+
+        /* ============================================
+           BRUSHSTROKE DIVIDERS
+           ============================================ */
+        .brushstroke-divider {
+            position: relative;
+            height: 60px;
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+        .brushstroke-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--crimson) 20%,
+                var(--crimson-dark) 50%,
+                var(--crimson) 80%,
+                transparent 100%
+            );
+            transform: translateY(-50%);
+            filter: blur(1px);
+        }
+
+        .brushstroke-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--crimson);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--crimson);
+        }
+
+        /* ============================================
+           SECTION STYLES
+           ============================================ */
+        section {
+            padding: 100px 20px;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--parchment);
+        }
+
+        .section-subtitle {
+            font-family: 'Shippori Mincho', serif;
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--parchment-dark);
+            opacity: 0.7;
+            margin-bottom: 4rem;
+        }
+
+        /* ============================================
+           ABOUT / PHILOSOPHY SECTION
+           ============================================ */
+        .about {
+            background: linear-gradient(180deg, var(--black-deep) 0%, var(--black-soft) 50%, var(--black-deep) 100%);
+        }
+
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+        }
+
+        .about-text {
+            grid-column: 1 / -1;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--parchment-dark);
+        }
+
+        .bushido-card {
+            background: var(--black-light);
+            border: 1px solid rgba(192, 57, 43, 0.2);
+            padding: 2.5rem;
+            position: relative;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .bushido-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(192, 57, 43, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .bushido-card:hover {
+            border-color: var(--crimson);
+            box-shadow: 0 0 30px rgba(192, 57, 43, 0.3), inset 0 0 30px rgba(192, 57, 43, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .bushido-card:hover::before {
+            opacity: 1;
+        }
+
+        .bushido-card .kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 3rem;
+            color: var(--crimson);
+            display: block;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(192, 57, 43, 0.4);
+        }
+
+        .bushido-card h3 {
+            font-size: 1.3rem;
+            color: var(--parchment);
+            margin-bottom: 0.5rem;
+        }
+
+        .bushido-card p {
+            color: var(--parchment-dark);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Distressed border effect */
+        .bushido-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, var(--crimson-dark), transparent, var(--crimson)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .bushido-card:hover::after {
+            opacity: 0.5;
+        }
+
+        /* ============================================
+           GALLERY / SHOWCASE SECTION
+           ============================================ */
+        .gallery {
+            background: var(--black-deep);
+        }
+
+        .gallery-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .gallery-card {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            background: var(--black-soft);
+            border: 1px solid rgba(139, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .gallery-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(10, 10, 10, 0.4) 50%,
+                rgba(10, 10, 10, 0.9) 100%
+            );
+            z-index: 1;
+        }
+
+        .gallery-card .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-card:hover .card-bg {
+            transform: scale(1.1);
+        }
+
+        .gallery-card:hover {
+            border-color: var(--crimson);
+            box-shadow: 0 0 40px rgba(192, 57, 43, 0.4);
+        }
+
+        .gallery-card .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            z-index: 2;
+        }
+
+        .gallery-card .card-quote {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--parchment);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-card .card-author {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: var(--crimson);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Ink bleed hover effect */
+        .gallery-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(192, 57, 43, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+            z-index: 0;
+        }
+
+        .gallery-card:hover::after {
+            width: 150%;
+            height: 150%;
+        }
+
+        /* ============================================
+           QUOTE BANNER SECTION
+           ============================================ */
+        .quote-banner {
+            position: relative;
+            padding: 120px 20px;
+            background: 
+                linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.85)),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 0, 0, 0.03) 2px,
+                    rgba(139, 0, 0, 0.03) 4px
+                );
+            background-color: var(--earth-brown);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .quote-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(192, 57, 43, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(139, 0, 0, 0.1) 0%, transparent 50%);
+        }
+
+        .quote-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .quote-mark {
+            font-family: 'Cinzel', serif;
+            font-size: 8rem;
+            color: var(--crimson);
+            line-height: 0.5;
+            opacity: 0.6;
+            margin-bottom: 1rem;
+        }
+
+        .quote-text {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--parchment);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .quote-author {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--crimson);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        /* ============================================
+           FOOTER / CONTACT SECTION
+           ============================================ */
+        .footer {
+            background: var(--black-deep);
+            padding: 80px 20px 40px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-size: 2rem;
+            color: var(--parchment);
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--parchment-dark);
+            opacity: 0.7;
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+
+        /* Japanese-style horizontal rule */
+        .japanese-hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                var(--crimson-dark) 30%,
+                var(--crimson) 50%,
+                var(--crimson-dark) 70%,
+                transparent 100%
+            );
+            margin: 3rem auto;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .japanese-hr::before {
+            content: 'â—†';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--crimson);
+            font-size: 1rem;
+            background: var(--black-deep);
+            padding: 0 1rem;
+        }
+
+        /* Social icons styled as wax seals */
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .social-link {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--black-soft);
+            border: 2px solid var(--crimson-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--parchment);
+            font-family: 'Shippori Mincho', serif;
+            font-size: 1.5rem;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .social-link::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 1px solid transparent;
+            background: linear-gradient(45deg, var(--crimson), transparent) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .social-link:hover {
+            background: var(--crimson-dark);
+            border-color: var(--crimson);
+            box-shadow: 0 0 20px rgba(192, 57, 43, 0.5);
+            transform: scale(1.1);
+        }
+
+        .social-link:hover::before {
+            opacity: 1;
+        }
+
+        .footer-kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 3rem;
+            color: var(--crimson-dark);
+            opacity: 0.3;
+            margin-bottom: 2rem;
+        }
+
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: var(--parchment-dark);
+            opacity: 0.4;
+        }
+
+        /* ============================================
+           CUSTOM CURSOR
+           ============================================ */
+        .custom-cursor {
+            position: fixed;
+            width: 42px;
+            height: 42px;
+            --cursor-angle: 45deg;
+            --cursor-scale: 1;
+            border: 1px solid rgba(192, 57, 43, 0.5);
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, rgba(192, 57, 43, 0.15) 0%, rgba(192, 57, 43, 0.03) 55%, transparent 100%);
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%) rotate(var(--cursor-angle)) scale(var(--cursor-scale));
+            transition: transform 0.14s ease-out, border-color 0.14s ease-out, box-shadow 0.2s ease-out;
+            box-shadow:
+                0 0 18px rgba(192, 57, 43, 0.35),
+                inset 0 0 10px rgba(192, 57, 43, 0.14);
+            mix-blend-mode: difference;
+            animation: cursorBreath 2.6s ease-in-out infinite;
+        }
+
+        .custom-cursor::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 26px;
+            background: linear-gradient(to bottom, rgba(232, 220, 200, 0.95) 0%, rgba(232, 220, 200, 0.5) 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(232, 220, 200, 0.3);
+        }
+
+        .custom-cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 11px;
+            height: 11px;
+            border: 1.8px solid rgba(192, 57, 43, 0.9);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px rgba(192, 57, 43, 0.4);
+        }
+
+        .custom-cursor.hover {
+            --cursor-scale: 1.28;
+            border-color: var(--parchment);
+            box-shadow:
+                0 0 22px rgba(232, 220, 200, 0.35),
+                inset 0 0 14px rgba(232, 220, 200, 0.18);
+        }
+
+        @keyframes cursorBreath {
+            0%, 100% { opacity: 0.92; }
+            50% { opacity: 1; }
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            .hero-sun {
+                width: 350px;
+                height: 350px;
+            }
+
+            .hero-kanji {
+                font-size: 5rem;
+            }
+
+            .hero-tagline {
+                font-size: 1.2rem;
+            }
+
+            section {
+                padding: 60px 15px;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .social-links {
+                gap: 1rem;
+            }
+
+            .social-link {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .custom-cursor {
+                display: none;
+            }
+
+            html {
+                cursor: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-sun {
+                width: 250px;
+                height: 250px;
+            }
+
+            .hero-kanji {
+                font-size: 3.5rem;
+            }
+
+            .quote-text {
+                font-size: 1.2rem;
+            }
+
+            .bushido-card {
+                padding: 1.5rem;
+            }
+        }
+
+        /* ============================================
+           LOADING ANIMATION
+           ============================================ */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--black-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-kanji {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 4rem;
+            color: var(--crimson);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
