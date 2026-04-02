@@ -15,9 +15,6 @@ const PAGE_MARKUP = `
 <!-- Custom Cursor -->
 <div class="custom-cursor" id="cursor"></div>
 
-<!-- ============================================
-      HERO SECTION
-      ============================================ -->
 <section class="hero" id="hero">
   <div class="hero-sun" id="heroSun"></div>
   <div class="hero-overlay"></div>
@@ -42,9 +39,6 @@ const PAGE_MARKUP = `
   <div class="scroll-indicator"></div>
 </section>
 
-<!-- ============================================
-      ABOUT / PHILOSOPHY SECTION
-      ============================================ -->
 <section class="about" id="about">
   <h2 class="section-title fade-in">The Way of the Warrior</h2>
   <p class="section-subtitle fade-in japanese-text">武士道の七徳</p>
@@ -101,9 +95,6 @@ const PAGE_MARKUP = `
   </div>
 </section>
 
-<!-- ============================================
-      GALLERY / SHOWCASE SECTION
-      ============================================ -->
 <section class="gallery" id="gallery">
   <h2 class="section-title fade-in">Echoes of the Blade</h2>
   <p class="section-subtitle fade-in japanese-text">剣の響き</p>
@@ -160,9 +151,6 @@ const PAGE_MARKUP = `
   </div>
 </section>
 
-<!-- ============================================
-      QUOTE BANNER SECTION
-      ============================================ -->
 <section class="quote-banner" id="quote">
   <div class="quote-content fade-in">
     <div class="quote-mark">"</div>
@@ -175,9 +163,6 @@ const PAGE_MARKUP = `
   </div>
 </section>
 
-<!-- ============================================
-      FOOTER / CONTACT SECTION
-      ============================================ -->
 <footer class="footer" id="footer">
   <div class="footer-content">
     <h2 class="footer-title fade-in">Walk the Path</h2>
@@ -371,12 +356,21 @@ function App() {
           return 100000
         }
 
-        const ownWidth = spreadHost.getBoundingClientRect().width
-        const parentWidth = spreadHost.parentElement
-          ? spreadHost.parentElement.getBoundingClientRect().width
-          : 0
+        const isAboutFlow = spreadHost.closest('.about-text') !== null
 
-        return Math.max(120, Math.max(ownWidth, parentWidth))
+        let targetWidth = 0
+        if (isAboutFlow) {
+          // In the about-text grid, we want this to be explicitly horizontal.
+          targetWidth = 800
+        } else {
+          const ownWidth = spreadHost.getBoundingClientRect().width
+          const parentWidth = spreadHost.parentElement
+            ? spreadHost.parentElement.getBoundingClientRect().width
+            : 0
+          targetWidth = Math.max(120, Math.max(ownWidth, parentWidth))
+        }
+
+        return targetWidth
       }
 
       const recomputeLayout = () => {
@@ -386,18 +380,22 @@ function App() {
           const prepared = prepareWithSegments(text, font)
           let tightWidth = 0
 
-          walkLineRanges(prepared, maxWidth, (line) => {
-            if (line.width > tightWidth) {
-              tightWidth = line.width
-            }
-          })
+          if (!isInlineSpread) {
+            walkLineRanges(prepared, maxWidth, (line) => {
+              if (line.width > tightWidth) {
+                tightWidth = line.width
+              }
+            })
+          }
 
-          const wrappedWidth = Math.max(1, Math.ceil(tightWidth))
+          const wrappedWidth = Math.max(1, Math.ceil(isInlineSpread ? maxWidth : tightWidth))
+
           const lineLayout = layoutWithLines(prepared, wrappedWidth, lineHeight)
           const mapped = buildGlyphMap(lineLayout, font, lineHeight, wrappedWidth)
+          const renderWidth = isInlineSpread ? mapped.renderWidth : wrappedWidth
 
           state.glyphs = mapped.glyphs
-          stage.style.width = `${mapped.renderWidth}px`
+          stage.style.width = `${renderWidth}px`
           stage.style.height = `${mapped.renderHeight}px`
           spreadHost.style.minHeight = `${mapped.renderHeight}px`
 
@@ -528,7 +526,12 @@ function App() {
       textNodes.forEach((textNode) => {
         const parent = textNode.parentElement
         const rawText = textNode.nodeValue || ''
-        const content = rawText.trim()
+        
+        // HTML collapses all consecutive whitespace (including newlines) into a single space
+        // for flow text. We must do the same, otherwise pretext treats \n as hard breaks.
+        const isPre = window.getComputedStyle(parent).whiteSpace.startsWith('pre')
+        const normalizedRawText = isPre ? rawText : rawText.replace(/\s+/g, ' ')
+        const content = normalizedRawText.trim()
 
         if (!parent || !content) {
           return

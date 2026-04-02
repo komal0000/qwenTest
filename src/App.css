@@ -241,7 +241,7 @@
             text-transform: uppercase;
             color: var(--parchment);
             text-shadow: 0 0 20px rgba(232, 220, 200, 0.3);
-            max-width: 800px;
+            max-width: 500px;
             margin: 0 auto;
         }
 
