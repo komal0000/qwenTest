@@ -838,6 +838,7 @@
 
             .hero-tagline {
                 font-size: 1.2rem;
+                max-width: 280px;
             }
 
             section {
@@ -877,6 +878,10 @@
             .hero-sun {
                 width: 250px;
                 height: 250px;
+            }
+
+            .hero-tagline {
+                max-width: 200px;
             }
 
             .hero-kanji {
